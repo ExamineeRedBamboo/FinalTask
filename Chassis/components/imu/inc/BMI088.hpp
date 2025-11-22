@@ -9,10 +9,9 @@
  *  V1.1.0      2024-07-13      Caikunzhen      1. 完成正式版
  *******************************************************************************
  * @attention :
- *  1. SPI 的波特率需小于 10MHz，CPOL=Low，CPHA=1Edge 或
- *CPOL=High，CPHA=2Edge，同 时需配置好加速度计与陀螺仪的片选引脚
- *  2.
- *由于内部使用了硬件句柄，因此如果计划将实例作为全局变量时（全局变量初始化时对应的
+ *  1. SPI 的波特率需小于 10MHz，CPOL=Low，CPHA=1Edge 或 CPOL=High，CPHA=2Edge，同
+ *  时需配置好加速度计与陀螺仪的片选引脚
+ *  2. 由于内部使用了硬件句柄，因此如果计划将实例作为全局变量时（全局变量初始化时对应的
  *  硬件句柄可能会还未初始化完毕），建议采取一下方法：
  *    1）声明指针，后续通过 `new` 的方式进行初始化
  *    2）声明指针，后续通过返回函数（CreateXXXIns）中的静态变量（因为该变量只有在第一
@@ -29,14 +28,16 @@
 #define HW_COMPONENTS_DEVICES_IMU_BMI088_HPP_
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_hal.h"
 #include "arm_math.h"
-#include "stm32h7xx_hal.h"
 
-namespace hello_world {
-namespace imu {
+namespace hello_world
+{
+namespace imu
+{
 /* Exported macro ------------------------------------------------------------*/
 
-enum BMI088ErrState : uint8_t { ///* 通过或运算拼接
+enum BMI088ErrState : uint8_t {  ///* 通过或运算拼接
   kBMI088ErrStateNoErr = 0u,
   kBMI088ErrStateAccNotFound = 1u << 0,
   kBMI088ErrStateGyroNotFound = 1u << 1,
@@ -46,7 +47,7 @@ enum BMI088ErrState : uint8_t { ///* 通过或运算拼接
   kBMI088ErrStateGyroConfigErr = 1u << 5,
 };
 
-enum BMI088AccRange : uint8_t { ///* BMI088 加速度计量程，单位：g
+enum BMI088AccRange : uint8_t {  ///* BMI088 加速度计量程，单位：g
   kBMI088AccRange3G = 0x0,
   kBMI088AccRange6G = 0x1,
   kBMI088AccRange12G = 0x2,
@@ -65,13 +66,13 @@ enum BMI088AccOdr : uint8_t {
   kBMI088AccOdr1600 = 0xC,
 };
 
-enum BMI088AccOsr : uint8_t { ///* BMI088 加速度计过采样率（Oversampling Rate）
-  kBMI088AccOsr4 = 0x8,       ///* 4倍过采样
-  kBMI088AccOsr2 = 0x9,       ///* 2倍过采样
-  kBMI088AccOsrNormal = 0xA,  ///* 不过采样
+enum BMI088AccOsr : uint8_t {  ///* BMI088 加速度计过采样率（Oversampling Rate）
+  kBMI088AccOsr4 = 0x8,        ///* 4倍过采样
+  kBMI088AccOsr2 = 0x9,        ///* 2倍过采样
+  kBMI088AccOsrNormal = 0xA,   ///* 不过采样
 };
 
-enum BMI088GyroRange : uint8_t { ///* BMI088 陀螺仪量程，单位：°/s
+enum BMI088GyroRange : uint8_t {  ///* BMI088 陀螺仪量程，单位：°/s
   kBMI088GyroRange2000Dps = 0x0,
   kBMI088GyroRange1000Dps = 0x1,
   kBMI088GyroRange500Dps = 0x2,
@@ -94,15 +95,15 @@ enum BMI088GyroOdrFbw : uint8_t {
 /* Exported constants --------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 
-struct BMI088HWConfig {                 ///* BMI088 硬件配置
-  SPI_HandleTypeDef *hspi = nullptr;    ///* IMU 对应的 SPI 句柄的指针
-  GPIO_TypeDef *acc_cs_port = nullptr;  ///* 加速度计片选端口
-  uint32_t acc_cs_pin = GPIO_PIN_0;     ///* 加速度计片选引脚
-  GPIO_TypeDef *gyro_cs_port = nullptr; ///* 陀螺仪片选端口
-  uint32_t gyro_cs_pin = GPIO_PIN_0;    ///* 陀螺仪片选引脚
+struct BMI088HWConfig {  ///* BMI088 硬件配置
+  SPI_HandleTypeDef* hspi = nullptr;     ///* IMU 对应的 SPI 句柄的指针
+  GPIO_TypeDef* acc_cs_port = nullptr;   ///* 加速度计片选端口
+  uint32_t acc_cs_pin = GPIO_PIN_0;      ///* 加速度计片选引脚
+  GPIO_TypeDef* gyro_cs_port = nullptr;  ///* 陀螺仪片选端口
+  uint32_t gyro_cs_pin = GPIO_PIN_0;     ///* 陀螺仪片选引脚
 };
 
-struct BMI088Config { ///* BMI088 设备配置
+struct BMI088Config {  ///* BMI088 设备配置
   BMI088AccRange acc_range = kBMI088AccRange3G;
   BMI088AccOdr acc_odr = kBMI088AccOdr1600;
   BMI088AccOsr acc_osr = kBMI088AccOsr4;
@@ -110,8 +111,9 @@ struct BMI088Config { ///* BMI088 设备配置
   BMI088GyroOdrFbw gyro_odr_fbw = kBMI088GyroOdrFbw1000_116;
 };
 
-class BMI088 {
-public:
+class BMI088
+{
+ public:
   /**
    * @brief       默认构造函数
    * @retval       None
@@ -127,12 +129,12 @@ public:
    * @retval       None
    * @note        None
    */
-  BMI088(const BMI088HWConfig &hw_config, const float rot_mat_flatten[9],
-         const BMI088Config &config = BMI088Config());
-  BMI088(const BMI088 &other);
-  BMI088 &operator=(const BMI088 &other);
-  BMI088(BMI088 &&other);
-  BMI088 &operator=(BMI088 &&other);
+  BMI088(const BMI088HWConfig& hw_config, const float rot_mat_flatten[9],
+         const BMI088Config& config = BMI088Config());
+  BMI088(const BMI088& other);
+  BMI088& operator=(const BMI088& other);
+  BMI088(BMI088&& other);
+  BMI088& operator=(BMI088&& other);
 
   virtual ~BMI088(void) {}
 
@@ -146,8 +148,8 @@ public:
    * @retval       None
    * @note        None
    */
-  void init(const BMI088HWConfig &hw_config, const float rot_mat_flatten[9],
-            const BMI088Config &config = BMI088Config());
+  void init(const BMI088HWConfig& hw_config, const float rot_mat_flatten[9],
+            const BMI088Config& config = BMI088Config());
 
   /* 功能性方法 */
 
@@ -176,21 +178,25 @@ public:
    * @retval       None
    * @note        传入 null_ptr 则不获取对应数据
    */
-  void getData(float acc_data[3], float gyro_data[3], float *temp) const;
+  void getData(float acc_data[3], float gyro_data[3], float* temp) const;
 
-private:
+ private:
   /* 功能性方法 */
 
-  inline void accCsL(void) const {
+  inline void accCsL(void) const
+  {
     HAL_GPIO_WritePin(acc_cs_port_, acc_cs_pin_, GPIO_PIN_RESET);
   }
-  inline void accCsH(void) const {
+  inline void accCsH(void) const
+  {
     HAL_GPIO_WritePin(acc_cs_port_, acc_cs_pin_, GPIO_PIN_SET);
   }
-  inline void gyroCsL(void) const {
+  inline void gyroCsL(void) const
+  {
     HAL_GPIO_WritePin(gyro_cs_port_, gyro_cs_pin_, GPIO_PIN_RESET);
   }
-  inline void gyroCsH(void) const {
+  inline void gyroCsH(void) const
+  {
     HAL_GPIO_WritePin(gyro_cs_port_, gyro_cs_pin_, GPIO_PIN_SET);
   }
 
@@ -286,8 +292,8 @@ private:
    * @retval       None
    * @note        None
    */
-  void gyroMultiRead(uint8_t start_mem_addr, uint8_t len,
-                     uint8_t *rx_data) const;
+  void gyroMultiRead(
+      uint8_t start_mem_addr, uint8_t len, uint8_t* rx_data) const;
 
   /**
    * @brief       向加速度计寄存器写入数据
@@ -314,25 +320,26 @@ private:
    * @retval       None
    * @note        None
    */
-  void accMultiRead(uint8_t start_mem_addr, uint8_t len,
-                    uint8_t *rx_data) const;
+  void accMultiRead(
+      uint8_t start_mem_addr, uint8_t len, uint8_t* rx_data) const;
 
   /* 硬件配置 */
 
-  SPI_HandleTypeDef *hspi_ = nullptr;    ///* IMU 对应的 SPI 句柄的指针
-  GPIO_TypeDef *acc_cs_port_ = nullptr;  ///* 加速度计片选端口
-  uint32_t acc_cs_pin_ = GPIO_PIN_0;     ///* 加速度计片选引脚
-  GPIO_TypeDef *gyro_cs_port_ = nullptr; ///* 陀螺仪片选端口
-  uint32_t gyro_cs_pin_ = GPIO_PIN_0;    ///* 陀螺仪片选引脚
+  SPI_HandleTypeDef* hspi_ = nullptr;     ///* IMU 对应的 SPI 句柄的指针
+  GPIO_TypeDef* acc_cs_port_ = nullptr;   ///* 加速度计片选端口
+  uint32_t acc_cs_pin_ = GPIO_PIN_0;      ///* 加速度计片选引脚
+  GPIO_TypeDef* gyro_cs_port_ = nullptr;  ///* 陀螺仪片选端口
+  uint32_t gyro_cs_pin_ = GPIO_PIN_0;     ///* 陀螺仪片选引脚
 
   BMI088Config config_;
-  float rot_mat_flatten_[9] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
-                               0.0f, 0.0f, 0.0f, 1.0f};
+  float rot_mat_flatten_[9] = {1.0f, 0.0f, 0.0f,
+                               0.0f, 1.0f, 0.0f,
+                               0.0f, 0.0f, 1.0f};
   arm_matrix_instance_f32 rot_mat_;
 };
 /* Exported variables --------------------------------------------------------*/
 /* Exported function prototypes ----------------------------------------------*/
-} // namespace imu
-} // namespace hello_world
+}  // namespace imu
+}  // namespace hello_world
 
 #endif /* HW_COMPONENTS_DEVICES_IMU_BMI088_HPP_ */

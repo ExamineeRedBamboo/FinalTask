@@ -2,7 +2,7 @@
 
 /**
  *******************************************************************************
- * @file      :tick.cpp
+ * @file      : tick.cpp
  * @brief     : 系统滴答定时器驱动源文件
  * @history   :
  *  Version     Date            Author          Note
@@ -18,10 +18,12 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "tick.hpp"
-#include "stm32h7xx_hal.h"
+#include "stm32f4xx_hal.h"
 
-namespace hello_world {
-namespace tick {
+namespace hello_world
+{
+namespace tick
+{
 /* Private macro -------------------------------------------------------------*/
 /* Private constants ---------------------------------------------------------*/
 /* Private types -------------------------------------------------------------*/
@@ -30,7 +32,8 @@ namespace tick {
 /* Private function prototypes -----------------------------------------------*/
 /* Exported function definitions ---------------------------------------------*/
 
-uint32_t GetTickUs(void) {
+uint32_t GetTickUs(void)
+{
   return (uint32_t)((HAL_GetTick() * HAL_GetTickFreq()) * 1000 +
                     SysTick->VAL * 1000 / SysTick->LOAD);
 }
@@ -40,14 +43,20 @@ uint32_t GetTickUs(void) {
  * @retval       当前时间，单位：ms
  * @note        None
  */
-uint32_t GetTickMs(void) { return GetTickUs() / 1000; }
+uint32_t GetTickMs(void)
+{
+  return GetTickUs() / 1000;
+}
 
 /**
  * @brief       返回当前时间
  * @retval       当前时间，单位：s
  * @note        None
  */
-uint32_t GetTickS(void) { return GetTickMs() / 1000; }
+uint32_t GetTickS(void)
+{
+  return GetTickMs() / 1000;
+}
 
 /**
  * @brief       微秒级延时
@@ -55,7 +64,8 @@ uint32_t GetTickS(void) { return GetTickMs() / 1000; }
  * @retval       None
  * @note        None
  */
-void DelayUs(uint32_t us) {
+void DelayUs(uint32_t us)
+{
   uint32_t reload = SysTick->LOAD;
   uint32_t ticks = us * (SystemCoreClock / 1e6f);
   uint32_t t_last = SysTick->VAL;
@@ -76,7 +86,6 @@ void DelayUs(uint32_t us) {
   }
 }
 
-/* Private function definitions
- * -----------------------------------------------*/
-} // namespace tick
-} // namespace hello_world
+/* Private function definitions -----------------------------------------------*/
+}  // namespace tick
+}  // namespace hello_world

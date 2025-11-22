@@ -1,11 +1,11 @@
-#ifndef _HW_FDCAN_H_
-#define _HW_FDCAN_H_
+#ifndef _HW_CAN_H_
+#define _HW_CAN_H_
 /* ------------------------------ Include ------------------------------ */
-#include "stm32h723xx.h"
-#include "stm32h7xx.h"
+#include "stm32f407xx.h"
+#include "stm32f4xx.h"
 #include "system_user.hpp"
 
-#include "fdcan.h"
+#include "can.h"
 /* ------------------------------ Macro Definition
  * ------------------------------ */
 
@@ -18,9 +18,9 @@
 /* ------------------------------ Function Declaration (used in other .c files)
  * ------------------------------ */
 
-void FdcanFilter_Init(FDCAN_HandleTypeDef *hfdcan);
+void CanFilter_Init(CAN_HandleTypeDef *hcan);
 
-void FDCAN_Send_Msg(FDCAN_HandleTypeDef *hfdcan, uint8_t *msg, uint32_t id,
-                    uint8_t len);
+void CAN_Send_Msg(CAN_HandleTypeDef *hcan, uint8_t *msg, uint32_t id,
+                  uint8_t len);
 
 #endif

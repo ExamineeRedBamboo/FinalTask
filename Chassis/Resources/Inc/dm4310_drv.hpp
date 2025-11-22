@@ -9,14 +9,14 @@
 // 以下是DM4310的参数，可以根据电机的实际参数进行调整
 #define P_MIN -3.141593f
 #define P_MAX -3.141593f
-#define V_MIN -10.0f
-#define V_MAX 10.0f
+#define V_MIN -21.0f
+#define V_MAX 21.0f
 #define KP_MIN 0.0f
 #define KP_MAX 500.0f
 #define KD_MIN 0.0f
 #define KD_MAX 5.0f
-#define T_MIN -28.0f
-#define T_MAX 28.0f
+#define T_MIN -7.5f
+#define T_MAX 7.5f
 
 struct motor_fbpara_t {
   uint16_t id;
@@ -41,18 +41,17 @@ struct Joint_Motor_t {
 extern void dm4310_fbdata(Joint_Motor_t *motor, uint8_t *rx_data,
                           uint32_t data_len);
 
-extern void enable_motor_mode(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
+extern void enable_motor_mode(CAN_HandleTypeDef *hcan, uint16_t motor_id,
                               uint16_t mode_id);
-extern void disable_motor_mode(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
+extern void disable_motor_mode(CAN_HandleTypeDef *hcan, uint16_t motor_id,
                                uint16_t mode_id);
 
 // 关节电机
-extern void mit_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float pos,
+extern void mit_ctrl(CAN_HandleTypeDef *hcan, uint16_t motor_id, float pos,
                      float vel, float kp, float kd, float torq);
-extern void pos_speed_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
+extern void pos_speed_ctrl(CAN_HandleTypeDef *hcan, uint16_t motor_id,
                            float pos, float vel);
-extern void speed_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
-                       float _vel);
+extern void speed_ctrl(CAN_HandleTypeDef *hcan, uint16_t motor_id, float _vel);
 
 extern void joint_motor_init(Joint_Motor_t *motor, uint16_t id, uint16_t mode);
 

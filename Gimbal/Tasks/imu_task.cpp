@@ -41,11 +41,11 @@ static void Quat2Euler(float *quat, float *euler);
  */
 void ImuInit() {
   hello_world::imu::BMI088HWConfig default_params = {
-      .hspi = &hspi2,
-      .acc_cs_port = GPIOC,
-      .acc_cs_pin = GPIO_PIN_0,
-      .gyro_cs_port = GPIOC,
-      .gyro_cs_pin = GPIO_PIN_3,
+      .hspi = &hspi1,
+      .acc_cs_port = GPIOA,
+      .acc_cs_pin = GPIO_PIN_4,
+      .gyro_cs_port = GPIOB,
+      .gyro_cs_pin = GPIO_PIN_0,
   };
   float rot_mat_flatten[9] = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
                               0.0f, 0.0f, 0.0f, 1.0f};

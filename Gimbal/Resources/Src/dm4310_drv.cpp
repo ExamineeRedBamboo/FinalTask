@@ -1,6 +1,6 @@
 #include "dm4310_drv.hpp"
 
-#include "HW_fdcan.hpp"
+#include "HW_can.hpp"
 #include "arm_math.h"
 float Hex_To_Float(uint32_t *Byte, int num) // 十六进制到浮点数
 {
@@ -80,7 +80,7 @@ void dm4310_fbdata(Joint_Motor_t *motor, uint8_t *rx_data, uint32_t data_len) {
   }
 }
 
-void enable_motor_mode(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
+void enable_motor_mode(CAN_HandleTypeDef *hcan, uint16_t motor_id,
                        uint16_t mode_id) {
   uint8_t data[8];
   uint16_t id = motor_id + mode_id;
@@ -94,7 +94,7 @@ void enable_motor_mode(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
   data[6] = 0xFF;
   data[7] = 0xFC;
 
-  FDCAN_Send_Msg(hfdcan, data, id, 8);
+  CAN_Send_Msg(hcan, data, id, 8);
 }
 /**
 ************************************************************************
@@ -106,7 +106,7 @@ void enable_motor_mode(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
 * @details:    	通过CAN总线向特定电机发送禁用特定模式的命令
 ************************************************************************
 **/
-void disable_motor_mode(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
+void disable_motor_mode(CAN_HandleTypeDef *hcan, uint16_t motor_id,
                         uint16_t mode_id) {
   uint8_t data[8];
   uint16_t id = motor_id + mode_id;
@@ -120,7 +120,7 @@ void disable_motor_mode(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
   data[6] = 0xFF;
   data[7] = 0xFD;
 
-  FDCAN_Send_Msg(hfdcan, data, id, 8);
+  CAN_Send_Msg(hcan, data, id, 8);
 }
 
 /**
@@ -138,8 +138,8 @@ void disable_motor_mode(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id,
 * @details:    	通过CAN总线向电机发送MIT模式下的控制帧。
 ************************************************************************
 **/
-void mit_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float pos,
-              float vel, float kp, float kd, float torq) {
+void mit_ctrl(CAN_HandleTypeDef *hcan, uint16_t motor_id, float pos, float vel,
+              float kp, float kd, float torq) {
   uint8_t data[8];
   uint16_t pos_tmp, vel_tmp, kp_tmp, kd_tmp, tor_tmp;
   uint16_t id = motor_id + MIT_MODE;
@@ -161,7 +161,7 @@ void mit_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float pos,
   data[7] = tor_tmp;
 
   // 通过can总线 发送到电机驱动器
-  FDCAN_Send_Msg(hfdcan, data, id, 8);
+  CAN_Send_Msg(hcan, data, id, 8);
 }
 /**
 ************************************************************************
@@ -174,7 +174,7 @@ void mit_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float pos,
 * @details:    	通过CAN总线向电机发送位置速度控制命令
 ************************************************************************
 **/
-void pos_speed_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float pos,
+void pos_speed_ctrl(CAN_HandleTypeDef *hcan, uint16_t motor_id, float pos,
                     float vel) {
   uint16_t id;
   uint8_t *pbuf, *vbuf;
@@ -194,7 +194,7 @@ void pos_speed_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float pos,
   data[6] = *(vbuf + 2);
   data[7] = *(vbuf + 3);
 
-  FDCAN_Send_Msg(hfdcan, data, id, 8);
+  CAN_Send_Msg(hcan, data, id, 8);
 }
 /**
 ************************************************************************
@@ -206,7 +206,7 @@ void pos_speed_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float pos,
 * @details:    	通过CAN总线向电机发送速度控制命令
 ************************************************************************
 **/
-void speed_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float vel) {
+void speed_ctrl(CAN_HandleTypeDef *hcan, uint16_t motor_id, float vel) {
   uint16_t id;
   uint8_t *vbuf;
   uint8_t data[4];
@@ -219,5 +219,5 @@ void speed_ctrl(FDCAN_HandleTypeDef *hfdcan, uint16_t motor_id, float vel) {
   data[2] = *(vbuf + 2);
   data[3] = *(vbuf + 3);
 
-  FDCAN_Send_Msg(hfdcan, data, id, 4);
+  CAN_Send_Msg(hcan, data, id, 4);
 }

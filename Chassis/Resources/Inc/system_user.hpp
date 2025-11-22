@@ -19,14 +19,14 @@
 extern "C" {
 #endif /* __cplusplus */
 /* Includes ------------------------------------------------------------------*/
-#include "fdcan.h"
-#include "gpio.h"
-#include "iwdg.h"
-#include "stm32h723xx.h"
-#include "stm32h7xx.h"
-#include "stm32h7xx_hal.h"
+#include "stm32f407xx.h"
+#include "stm32f4xx.h"
+#include "stm32f4xx_hal.h"
 #include "tim.h"
+#include "can.h"
+#include "gpio.h"
 #include "usart.h"
+#include "iwdg.h"
 #include <stdint.h>
 
 /* Exported macro ------------------------------------------------------------*/
@@ -46,13 +46,16 @@ extern uint32_t tick;
 #define Y_AXIS 1
 #define Z_AXIS 2
 
-typedef struct _imu_datas_t {
-  float euler_vals[3]; // 欧拉角度
-  float gyro_vals[3];  // 角速度
-  float acc_vals[3];   // 加速度
+typedef struct _imu_datas_t
+{
+    float euler_vals[3]; // 欧拉角度
+    float gyro_vals[3];  // 角速度
+    float acc_vals[3];   // 加速度
 } ImuDatas_t;
 
 extern ImuDatas_t imu_datas;
+
+
 
 #ifdef __cplusplus
 }
